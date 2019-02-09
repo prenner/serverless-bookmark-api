@@ -1,0 +1,79 @@
+service: bookmark-dynamodb-api
+
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: python3.6
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+functions:
+  create:
+    handler: folder/create.create
+    events:
+      - http:
+          path: folders
+          method: post
+          cors: true
+
+  list:
+    handler: folder/list.list
+    events:
+      - http:
+          path: folders
+          method: get
+          cors: true
+
+  get:
+    handler: folder/get.get
+    events:
+      - http:
+          path: folders/{id}
+          method: get
+          cors: true
+
+  update:
+    handler: folder/update.update
+    events:
+      - http:
+          path: folders/{id}
+          method: put
+          cors: true
+
+  delete:
+    handler: folder/delete.delete
+    events:
+      - http:
+          path: folders/{id}
+          method: delete
+          cors: true
+
+resources:
+  Resources:
+    BookMarkDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Delete
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1

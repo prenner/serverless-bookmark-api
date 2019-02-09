@@ -1,0 +1,12 @@
+{
+  "name": "serverless-bookmark-api",
+  "version": "1.0.0",
+  "description": "bookmark API built with an AWS stack",
+  "main": "index.js",
+  "dependencies": {
+    "serverless": "^1.37.1",
+    "uuid": "^3.3.2"
+  },
+  "author": "prenner",
+  "license": "ISC"
+}
